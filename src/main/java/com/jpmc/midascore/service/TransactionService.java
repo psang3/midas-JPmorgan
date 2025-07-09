@@ -31,14 +31,14 @@ public class TransactionService {
         logger.info("Processing transaction: {}", transaction);
         
         // Validate sender exists
-        UserRecord sender = userRepository.findById(transaction.getSenderId());
+        UserRecord sender = userRepository.findById(transaction.getSenderId()).orElse(null);
         if (sender == null) {
             logger.warn("Invalid sender ID: {}", transaction.getSenderId());
             return false;
         }
         
         // Validate recipient exists
-        UserRecord recipient = userRepository.findById(transaction.getRecipientId());
+        UserRecord recipient = userRepository.findById(transaction.getRecipientId()).orElse(null);
         if (recipient == null) {
             logger.warn("Invalid recipient ID: {}", transaction.getRecipientId());
             return false;
