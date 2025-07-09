@@ -1,6 +1,7 @@
 package com.jpmc.midascore.component;
 
 import com.jpmc.midascore.foundation.Transaction;
+import com.jpmc.midascore.service.TransactionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,12 +13,24 @@ public class TransactionListener {
     
     private static final Logger logger = LoggerFactory.getLogger(TransactionListener.class);
     
+    private final TransactionService transactionService;
+    
     @Value("${general.kafka-topic}")
     private String topic;
+    
+    public TransactionListener(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
     
     @KafkaListener(topics = "${general.kafka-topic}", groupId = "midas-core-group")
     public void listen(Transaction transaction) {
         logger.info("Received transaction: {}", transaction);
-        // TODO: Process the transaction (this will be implemented later)
+        
+        boolean processed = transactionService.processTransaction(transaction);
+        if (processed) {
+            logger.info("Transaction processed successfully");
+        } else {
+            logger.warn("Transaction was invalid and discarded");
+        }
     }
 } 
